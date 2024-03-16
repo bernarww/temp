@@ -5,18 +5,18 @@ services:
     image: traefik:v2.3
     container_name: traefik
     restart: unless-stopped
-    ports:
-      - "80:80"
-      - "8080:8080"
     command:
       - "--api.insecure=true"
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.web.address=:80"
+    ports:
+      - "80:80"
+      - "8080:8080"
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:
-      - traefik-public
+      - mynetwork
 
   haproxy:
     image: haproxy:lts-alpine3.19
@@ -64,7 +64,7 @@ services:
       - "traefik.http.routers.pgadmin.rule=Host(`pgadmin.artifacts.kz`)"
       - "traefik.http.services.pgadmin.loadbalancer.server.port=80"
     networks:
-      - traefik-public
+      - mynetwork
 
   redis:
     image: redis:7.0-alpine
@@ -121,10 +121,11 @@ services:
     environment:
       - GF_SERVER_ROOT_URL=${GF_SERVER_ROOT_URL}
     labels:
-      # - "traefik.enable=true"
+      - "traefik.enable=true"
       - "traefik.http.routers.grafana.rule=Host(`grafana.artifacts.kz`)"
+      - "traefik.http.services.grafana.loadbalancer.server.port=80"
     networks:
-      - traefik-public
+      - mynetwork
 
   prometheus:
     image: prom/prometheus:latest
@@ -206,7 +207,3 @@ networks:
   mynetwork:
     name: mynetwork
     driver: bridge
-
-  traefik-public:
-    name: traefik-public
-    external: true
