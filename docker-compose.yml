@@ -39,8 +39,8 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     #   - traefik-public-certificates:/certificates
-    # networks:
-    #   - traefik-public
+    networks:
+      - traefik-public
 
   haproxy:
     image: haproxy:lts-alpine3.19
@@ -83,8 +83,10 @@ services:
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
     volumes:
       - pgadmin_data:/var/lib/pgadmin
+    labels:
+      - traefik.http.routers.pgadmin.rule=Host(`pgadmin.artifacts.kz`)
     networks:
-      - mynetwork
+      - traefik-public
 
   redis:
     image: redis:7.0-alpine
