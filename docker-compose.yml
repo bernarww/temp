@@ -168,14 +168,14 @@ services:
     privileged: true 
 
 volumes:
-  postgres_data: {}
-  pgadmin_data: {}
-  redis_data: {}
-  redisinsight_data: {}
-  minio_data: {}
-  grafana_data: {}
-  prometheus_data: {}
-  portainer_data: {}
+  postgres_data:
+  pgadmin_data:
+  redis_data:
+  redisinsight_data:
+  minio_data:
+  grafana_data:
+  prometheus_data:
+  portainer_data:
 
 networks:
   mynetwork:
