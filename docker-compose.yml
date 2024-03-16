@@ -145,9 +145,8 @@ services:
     environment:
       - GF_SERVER_ROOT_URL=${GF_SERVER_ROOT_URL}
     labels:
-      - "traefik.enable=true"
+      # - "traefik.enable=true"
       - "traefik.http.routers.grafana.rule=Host(`grafana.artifacts.kz`)"
-      - "traefik.http.services.grafana.loadbalancer.server.port=80"
     networks:
       - traefik-public
 
