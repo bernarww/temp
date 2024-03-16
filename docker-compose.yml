@@ -84,7 +84,7 @@ services:
     volumes:
       - pgadmin_data:/var/lib/pgadmin
     labels:
-      - traefik.http.routers.pgadmin.rule=Host(`pgadmin.artifacts.kz`)
+      - "traefik.http.routers.pgadmin.rule=Host(`pgadmin.artifacts.kz`)"
     networks:
       - traefik-public
 
