@@ -6,8 +6,8 @@ services:
     container_name: traefik
     restart: unless-stopped
     ports:
-      - 80:80
-      - 8080:8080
+      - "80:80"
+      - "8080:8080"
     #   - 443:443
     # labels:
     #   - traefik.enable=true
@@ -26,7 +26,7 @@ services:
     #   - traefik.http.middlewares.admin-auth.basicauth.users=${USERNAME?Variable not set}:${HASHED_PASSWORD?Variable not set}
     #   - traefik.http.routers.traefik-dashboard-https.middlewares=admin-auth
     command:
-      - --providers.docker
+      - "--providers.docker"
       # - --providers.docker.exposedbydefault=false
       # - --entrypoints.http.address=:80
       # - --entrypoints.https.address=:443
@@ -35,7 +35,7 @@ services:
       # - --certificatesresolvers.le.acme.tlschallenge=true
       # - --accesslog
       # - --log
-      - --api.insecure=true
+      - "--api.insecure=true"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     #   - traefik-public-certificates:/certificates
@@ -53,7 +53,7 @@ services:
     ports:
       - "3000:3000"  #grafana
       - "5540:5540"  #redisinsight
-      - "5050:5050"  #pgadmin
+      #- "5050:5050"  #pgadmin
       - "8404:8404"  #haproxy health
       - "9000:9000"  #portainer
       - "9001:9001"  #minio_browser
