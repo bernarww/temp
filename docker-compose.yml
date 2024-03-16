@@ -165,6 +165,7 @@ services:
       - portainer_data:/data
     networks:
       - mynetwork
+    privileged: true 
 
 volumes:
   postgres_data: {}
