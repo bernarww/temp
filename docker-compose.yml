@@ -84,7 +84,9 @@ services:
     volumes:
       - pgadmin_data:/var/lib/pgadmin
     labels:
+      - "traefik.enable=true"
       - "traefik.http.routers.pgadmin.rule=Host(`pgadmin.artifacts.kz`)"
+      - "traefik.http.services.pgadmin.loadbalancer.server.port=80"
     networks:
       - traefik-public
 
