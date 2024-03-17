@@ -20,18 +20,18 @@ services:
     networks:
       - mynetwork
 
-  postgres:
-    image: postgres:15.0-alpine
-    container_name: postgres
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    networks:
-      - mynetwork
+  # postgres:
+  #   image: postgres:15.0-alpine
+  #   container_name: postgres
+  #   restart: unless-stopped
+  #   environment:
+  #     POSTGRES_DB: ${POSTGRES_DB}
+  #     POSTGRES_USER: ${POSTGRES_USER}
+  #     POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #   networks:
+  #     - mynetwork
 
   pgadmin:
     image: dpage/pgadmin4:latest
@@ -45,14 +45,14 @@ services:
     networks:
       - mynetwork
 
-  redis:
-    image: redis:7.0-alpine
-    container_name: redis
-    restart: unless-stopped
-    volumes:
-      - redis_data:/data:rw
-    networks:
-      - mynetwork
+  # redis:
+  #   image: redis:7.0-alpine
+  #   container_name: redis
+  #   restart: unless-stopped
+  #   volumes:
+  #     - redis_data:/data:rw
+  #   networks:
+  #     - mynetwork
 
   redisinsight:
     image: redislabs/redisinsight:latest
@@ -167,10 +167,85 @@ services:
       - mynetwork
     privileged: true 
 
+
+
+
+  api:
+    image: ghcr.io/saleor/saleor:3.19
+    ports:
+      - 8000:8000
+    restart: unless-stopped
+    networks:
+      - mynetwork
+    stdin_open: true
+    tty: true
+    depends_on:
+      - db
+      - redis
+    volumes:
+      # shared volume between worker and api for media
+      - saleor-media:/app/media
+    env_file:
+      - common.env
+      - backend.env
+    environment:
+      - DASHBOARD_URL=http://localhost:9000/
+      - ALLOWED_HOSTS=localhost,api
+
+  dashboard:
+    image: ghcr.io/saleor/saleor-dashboard:latest
+    ports:
+      - 9000:80
+    restart: unless-stopped
+
+  db:
+    image: library/postgres:13-alpine
+    ports:
+      - 5432:5432
+    restart: unless-stopped
+    networks:
+      - mynetwork
+    volumes:
+      - saleor-db:/var/lib/postgresql/data
+      - ./replica_user.sql:/docker-entrypoint-initdb.d/replica_user.sql
+    environment:
+      - POSTGRES_USER=saleor
+      - POSTGRES_PASSWORD=saleor
+
+  redis:
+    image: library/redis:7.0-alpine
+    ports:
+      - 6379:6379
+    restart: unless-stopped
+    networks:
+      - mynetwork
+    volumes:
+      - saleor-redis:/data
+
+  worker:
+    image: ghcr.io/saleor/saleor:3.19
+    command: celery -A saleor --app=saleor.celeryconf:app worker --loglevel=info -B
+    restart: unless-stopped
+    networks:
+      - mynetwork
+    env_file:
+      - common.env
+      - backend.env
+    depends_on:
+      - redis
+    volumes:
+      - saleor-media:/app/media
+
+
 volumes:
+  saleor-db:
+  saleor-redis:
+  saleor-media:
+
+
   postgres_data:
   pgadmin_data:
-  redis_data:
+  #redis_data:
   redisinsight_data:
   minio_data:
   grafana_data:
