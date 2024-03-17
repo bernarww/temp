@@ -1,0 +1,59 @@
+# deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: db
+  template:
+    metadata:
+      labels:
+        app: db
+    spec:
+      containers:
+        - name: db
+          image: library/postgres:13-alpine
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_USER
+              value: saleor
+            - name: POSTGRES_PASSWORD
+              value: saleor
+          volumeMounts:
+            - name: db-storage
+              mountPath: /var/lib/postgresql/data
+      volumes:
+        - name: db-storage
+          persistentVolumeClaim:
+            claimName: db-storage-pvc
+
+# saleor-media-pvc.yaml
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: db-storage-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
+      
+---
+# service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: db
+spec:
+  selector:
+    app: db
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432

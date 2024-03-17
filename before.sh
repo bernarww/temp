@@ -21,3 +21,13 @@ touch /root/project_one/haproxy/etc/haproxy/haproxy.cfg
 chmod -R 777 /root/project_one
 
 sudo certbot certonly --standalone
+
+
+k3s check-config
+kubectl cluster-info
+
+kubectl get sc - persistent volume
+
+kubectl get svc -A  - cluster ip, loadbalncer
+
+

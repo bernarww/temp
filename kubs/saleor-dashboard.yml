@@ -1,0 +1,51 @@
+# deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: saleor-dashboard
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: saleor-dashboard
+  template:
+    metadata:
+      labels:
+        app: saleor-dashboard
+    spec:
+      containers:
+        - name: saleor-dashboard
+          image: ghcr.io/saleor/saleor-dashboard:latest
+          ports:
+            - containerPort: 80
+---
+# service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: saleor-dashboard
+spec:
+  selector:
+    app: saleor-dashboard
+  ports:
+    - protocol: TCP
+      port: 9000
+      targetPort: 80
+---
+# ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: saleor-dashboard
+spec:
+  rules:
+    - host: dashboard.artifacts.kz
+      http:
+        paths:
+          - pathType: Prefix
+            path: /
+            backend:
+              service:
+                name: saleor-dashboard
+                port:
+                  number: 9000

@@ -1,0 +1,94 @@
+# deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: saleor-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: saleor-api
+  template:
+    metadata:
+      labels:
+        app: saleor-api
+    spec:
+      containers:
+        - name: saleor-api
+          image: ghcr.io/saleor/saleor:3.19
+          ports:
+            - containerPort: 8000
+          env:
+            - name: CELERY_BROKER_URL
+              value: "redis://redis:6379/1"
+            - name: DATABASE_URL
+              value: "postgres://saleor:saleor@db/saleor"
+            - name: DEFAULT_FROM_EMAIL
+              value: "noreply@example.com"
+            - name: EMAIL_URL
+              value: "smtp://mailpit:1025"
+            - name: SECRET_KEY
+              value: "changeme"
+            - name: DEFAULT_CHANNEL_SLUG
+              value: "default-channel"
+            - name: HTTP_IP_FILTER_ALLOW_LOOPBACK_IPS
+              value: "True"
+            - name: HTTP_IP_FILTER_ENABLED
+              value: "True"
+            - name: JAEGER_AGENT_HOST
+              value: "jaeger"
+            - name: DASHBOARD_URL
+              value: "http://localhost:9000/"
+            - name: ALLOWED_HOSTS
+              value: "localhost,api,api.artifacts.kz"
+          volumeMounts:
+            - name: saleor-media
+              mountPath: /app/media
+      volumes:
+        - name: saleor-media
+          persistentVolumeClaim:
+            claimName: saleor-media-pvc
+
+# saleor-media-pvc.yaml
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: saleor-media-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+# service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: saleor-api
+spec:
+  selector:
+    app: saleor-api
+  ports:
+    - protocol: TCP
+      port: 8000
+      targetPort: 8000
+---
+# ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: saleor-api
+spec:
+  rules:
+    - host: api.artifacts.kz
+      http:
+        paths:
+          - pathType: Prefix
+            path: /
+            backend:
+              service:
+                name: saleor-api
+                port:
+                  number: 8000
