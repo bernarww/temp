@@ -26,7 +26,7 @@ spec:
           persistentVolumeClaim:
             claimName: redis-storage-pvc
 
-# saleor-media-pvc.yaml
+# pvc.yaml
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
