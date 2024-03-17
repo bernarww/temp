@@ -1,23 +1,6 @@
 version: '3.8'
 services:
 
-  traefik:
-    image: traefik:v2.3
-    container_name: traefik
-    restart: unless-stopped
-    command:
-      - "--api.insecure=true"
-      - "--providers.docker=true"
-      - "--providers.docker.exposedbydefault=false"
-      - "--entrypoints.web.address=:80"
-    ports:
-      - "80:80"
-      - "8080:8080"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-    networks:
-      - mynetwork
-
   haproxy:
     image: haproxy:lts-alpine3.19
     container_name: haproxy
@@ -27,9 +10,10 @@ services:
       - ./haproxy/etc/haproxy:/usr/local/etc/haproxy
       - ./haproxy/run/haproxy:/run/haproxy
     ports:
-      #- "3000:3000"  #grafana
+      - "80:80"
+      - "3000:3000"  #grafana
       - "5540:5540"  #redisinsight
-      #- "5050:5050"  #pgadmin
+      - "5050:5050"  #pgadmin
       - "8404:8404"  #haproxy health
       - "9000:9000"  #portainer
       - "9001:9001"  #minio_browser
@@ -59,10 +43,6 @@ services:
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
     volumes:
       - pgadmin_data:/var/lib/pgadmin
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.pgadmin.rule=Host(`pgadmin.artifacts.kz`)"
-      - "traefik.http.services.pgadmin.loadbalancer.server.port=80"
     networks:
       - mynetwork
 
@@ -120,10 +100,6 @@ services:
       - grafana_data:/var/lib/grafana
     environment:
       - GF_SERVER_ROOT_URL=${GF_SERVER_ROOT_URL}
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.grafana.rule=Host(`grafana.artifacts.kz`)"
-      - "traefik.http.services.grafana.loadbalancer.server.port=80"
     networks:
       - mynetwork
 
@@ -193,7 +169,6 @@ services:
     privileged: true 
 
 volumes:
-  traefik-public-certificates:
   postgres_data:
   pgadmin_data:
   redis_data:
