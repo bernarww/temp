@@ -38,6 +38,10 @@ kind: Ingress
 metadata:
   name: saleor-dashboard
 spec:
+  tls:
+    - hosts:
+        - dashboard.artifacts.kz
+      secretName: artifactskz-ssl
   rules:
     - host: dashboard.artifacts.kz
       http:
@@ -49,3 +53,4 @@ spec:
                 name: saleor-dashboard
                 port:
                   number: 9000
+

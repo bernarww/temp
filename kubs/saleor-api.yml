@@ -81,6 +81,10 @@ kind: Ingress
 metadata:
   name: saleor-api
 spec:
+  tls:
+    - hosts:
+        - api.artifacts.kz
+      secretName: artifactskz-ssl
   rules:
     - host: api.artifacts.kz
       http:

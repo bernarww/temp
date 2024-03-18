@@ -31,3 +31,6 @@ kubectl get sc - persistent volume
 kubectl get svc -A  - cluster ip, loadbalncer
 
 
+kubectl create secret tls artifactskz-ssl --cert=/root/saleor-platform/kubs/cert/certificate.pem --key=/root/saleor-platform/kubs/cert/privatekey.pem
+
+
