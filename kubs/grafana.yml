@@ -60,6 +60,10 @@ kind: Ingress
 metadata:
   name: grafana
 spec:
+  tls:
+    - hosts:
+        - grafana.artifacts.kz
+      secretName: artifactskz-ssl
   rules:
     - host: grafana.artifacts.kz
       http:
